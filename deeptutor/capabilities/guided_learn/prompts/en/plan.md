@@ -12,9 +12,13 @@ Based on the probe findings, present the teaching plan (3-6 items). **This stage
 
 Be concrete. Write "first confirm you accept A and B, then derive C from A+B" — not "let's learn about X".
 
+## Learner confirmation
+
+After presenting the plan, **you must ask the learner via `ask_user`**: does this plan work? Reorder anything? Skip or deepen any part? Adjust based on feedback and only proceed once they confirm. Never skip confirmation and jump into teaching.
+
 ## Stage exit
 
-After presenting the plan, write on its own final line:
+Once the learner confirms the plan, write on its own final line:
 
 [STAGE:teach]
 

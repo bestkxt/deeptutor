@@ -15,10 +15,17 @@ from __future__ import annotations
 from importlib import resources
 from typing import Any
 
+from deeptutor.capabilities.guided_learn.memory import (
+    format_for_prompt,
+    load_misconceptions,
+    save_misconception,
+)
 from deeptutor.capabilities.guided_learn.stages import (
     TRANSITIONS,
     current_stage,
+    extract_check,
     extract_marker,
+    extract_misconceptions,
     set_stage,
     strip_marker,
 )
@@ -50,7 +57,14 @@ class GuidedLearnLoopCapability:
             return None
         identity = _load_prompt(language, "identity")
         stage_prompt = _load_prompt(language, stage)
-        return PromptBlock("guided_learn", f"{identity}\n\n{stage_prompt}")
+        parts = [identity, stage_prompt]
+        # Probe stage: surface the learner's known misconceptions so the
+        # model targets them first.
+        if stage == "probe":
+            known = format_for_prompt(load_misconceptions())
+            if known:
+                parts.append(known)
+        return PromptBlock("guided_learn", "\n\n".join(parts))
 
     def augment_kwargs(
         self,
@@ -68,12 +82,37 @@ class GuidedLearnLoopCapability:
     def finish_instruction(
         self, context: UnifiedContext, final_text: str
     ) -> str | None:
-        """Enforce the stage protocol before the turn may finalize."""
+        """Enforce the stage protocol and the checkpoint gate."""
         if not self.is_active(context):
             return None
+        metadata = context.metadata or {}
+
+        # --- Checkpoint gate (teach stage) ---
+        check = extract_check(final_text)
+        check_handled = False
+        if check == "fail":
+            check_handled = True
+            fails = int(metadata.get("guided_learn_fails", 0) or 0) + 1
+            metadata["guided_learn_fails"] = fails
+            if fails >= 2:
+                metadata["guided_learn_fails"] = 0
+                return (
+                    "检查点连续两次未通过。不许继续往下讲，也不许重复之前的讲法。"
+                    "停下来，用完全不同的角度或例子重新讲这一步，"
+                    "然后出一个新的检查题。"
+                )
+            # First failure: the re-explanation is already in the response.
+        elif check == "pass":
+            check_handled = True
+            metadata["guided_learn_fails"] = 0
+
+        # --- Stage protocol ---
         stage = current_stage(context)
         marker = extract_marker(final_text)
         if marker is None:
+            # A checkpoint verdict alone is a complete mid-teach round.
+            if check_handled:
+                return None
             return (
                 f"协议要求：你当前处于「{stage}」阶段，本轮不能直接结束。"
                 f"请按本阶段的阶段结束条件完成任务，并在回复最后单独一行写"
@@ -90,13 +129,16 @@ class GuidedLearnLoopCapability:
         # "done" is not in TRANSITIONS, so system_block goes quiet afterwards.
         set_stage(context, marker)
         if marker == "done":
-            context.metadata["guided_learn_complete"] = True
+            metadata["guided_learn_complete"] = True
         return None
 
     def final_text_override(
         self, context: UnifiedContext, final_text: str
     ) -> str:
-        _ = context
+        # Persist any reported misconceptions before stripping markers.
+        topic = str((context.metadata or {}).get("guided_learn_topic", ""))
+        for desc in extract_misconceptions(final_text):
+            save_misconception(desc, topic)
         return strip_marker(final_text)
 
 

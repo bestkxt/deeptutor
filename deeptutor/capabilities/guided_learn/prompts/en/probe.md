@@ -16,7 +16,11 @@ You know nothing about the learner's level. First locate their **knowledge edge*
 
 ## Stage exit
 
-When you know the edge, the missing prerequisites, and any misconceptions — summarize the probe findings (where the edge is, what's missing, any misconceptions), then write on its own final line:
+When you know the edge, the missing prerequisites, and any misconceptions — summarize the probe findings (where the edge is, what's missing, any misconceptions).
+
+**Misconception reporting**: for each confirmed misconception, write on its own line `[MISCONCEPTION: one-sentence description]` (e.g. `[MISCONCEPTION: believes a positive test means 99% illness, ignoring base rates]`). The system remembers it and will probe it first next time. You may report several.
+
+Then write on its own final line:
 
 [STAGE:plan]
 
