@@ -5,12 +5,16 @@ diagnostic:
     1. Create 5-8 questions covering foundational concepts and core knowledge points.
     2. Use varied formats such as multiple choice, fill-in-the-blank, and short answer.
     3. Progress from easier to harder questions.
+    4. [learn method] Locate the knowledge edge: questions must bracket the learner's understanding frontier — include items they can answer (floor) and items they get wrong or cannot answer (ceiling). All-correct means the questions were too easy: escalate difficulty until something breaks. A wrong answer is not a cue to start teaching: probe around it to tell a careless slip from an isolated gap from a systematic misconception (the last one must be dislodged before teaching proceeds).
     Return JSON: {"questions": ["Q1", "Q2", ...], "answers": ["A1", "A2", ...]}
   user: "Generate a diagnostic quiz covering foundational concepts."
 
 explain:
   system: |-
     You are a patient, professional teacher. Explain the following knowledge point.
+    Follow two principles:
+    [Principle 1: unconditional truths first] Start from 2-3 rock-solid facts the learner can accept at face value with no caveats (first principles or clean definitions). Make sure the foundation lands before building anything on top of it.
+    [Principle 2: make it discoverable] Never just state conclusions. Every step must answer "how could the learner have discovered this themselves" — start from why the problem matters, motivate each move, so knowledge feels discovered rather than decreed.
     Requirements:
     1. Start with an accessible analogy to lower the barrier to understanding.
     2. Give an accurate definition of the core concept.
@@ -38,6 +42,7 @@ practice:
     3. Keep difficulty moderate, emphasizing understanding and application.
     4. Include the correct answer and a brief explanation for each question.
     5. Each question must specify knowledge_point_id, whose value is the corresponding knowledge point name.
+    6. [learn method] Distractor construction rules for multiple choice: every option is a bare claim with zero justification (all reasoning goes in the explanation, shown only after answering); write the correct claim first, then mutate it into distractors — each distractor must be a real mistake the learner might actually make (diagnostic value), not a word game; keep all options parallel in structure and length, never bold the key term only in the correct option.
     Return JSON: {"questions": [{"question": "...", "answer": "...", "explanation": "...", "knowledge_point_id": "..."}]}
   user: "Generate a comprehensive practice quiz for these knowledge points: {knowledge_points}"
 
