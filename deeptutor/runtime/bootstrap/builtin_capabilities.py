@@ -45,6 +45,7 @@ BUILTIN_CAPABILITY_CLASSES: dict[str, str] = {
     "course_study": "deeptutor.capabilities.course_study.mode:CourseStudyCapability",
     "immersive_watching": "deeptutor.capabilities.watching.mode:ImmersiveWatchingCapability",
     "audio_overview": ("deeptutor.capabilities.audio_overview.capability:AudioOverviewCapability"),
+    "guided_learn": "deeptutor.capabilities.guided_learn.capability:GuidedLearnCapability",
 }
 
 
@@ -252,6 +253,16 @@ BUILTIN_CAPABILITY_SPECS: dict[str, BuiltinCapabilitySpec] = {
                 "expert_voice": None,
                 "max_context_chunks": 6,
             },
+        ),
+    ),
+    "guided_learn": BuiltinCapabilitySpec(
+        BUILTIN_CAPABILITY_CLASSES["guided_learn"],
+        _manifest(
+            "guided_learn",
+            "Guided learning: probe the knowledge edge, present a teaching plan, then teach from unconditional truths.",
+            stages=["probe", "plan", "teach"],
+            tools_used=["ask_user"],
+            cli_aliases=["learn", "guided"],
         ),
     ),
 }

@@ -52,6 +52,10 @@ BUILTIN_LOOP_CAPABILITY_SPECS: tuple[LoopCapabilitySpec, ...] = (
         "deeptutor.capabilities.ask_questions.loop:AskQuestionsLoopCapability",
     ),
     LoopCapabilitySpec("mastery", "deeptutor.capabilities.mastery.loop:MasteryLoopCapability"),
+    LoopCapabilitySpec(
+        "guided_learn",
+        "deeptutor.capabilities.guided_learn.loop:GuidedLearnLoopCapability",
+    ),
     LoopCapabilitySpec("solve", "deeptutor.capabilities.solve.loop:SolveLoopCapability"),
     LoopCapabilitySpec("obsidian", "deeptutor.capabilities.obsidian.capability:ObsidianCapability"),
     LoopCapabilitySpec(
