@@ -48,9 +48,13 @@ def set_stage(context: UnifiedContext, stage: str) -> None:
 
 
 def extract_marker(text: str) -> str | None:
-    """Return the stage marker at the end of *text*, if any."""
+    """Return the stage marker if it is the last non-blank line of *text*."""
     match = STAGE_MARKER_RE.search(text)
-    return match.group(1) if match else None
+    if not match:
+        return None
+    if text[match.end():].strip():
+        return None  # substantive text after the marker: protocol violation
+    return match.group(1)
 
 
 def strip_marker(text: str) -> str:
@@ -62,9 +66,13 @@ def strip_marker(text: str) -> str:
 
 
 def extract_check(text: str) -> str | None:
-    """Return the checkpoint verdict ('pass'/'fail') at the end of *text*."""
+    """Return the checkpoint verdict ('pass'/'fail') from the last non-blank line."""
     match = CHECK_MARKER_RE.search(text)
-    return match.group(1) if match else None
+    if not match:
+        return None
+    if text[match.end():].strip():
+        return None
+    return match.group(1)
 
 
 def extract_misconceptions(text: str) -> list[str]:
